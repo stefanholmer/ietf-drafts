@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="exp" docName="draft-holmer-rmcat-transport-wide-cc-extensions-00" ipr="trust200902">
+<rfc category="exp" docName="draft-holmer-rmcat-transport-wide-cc-extensions-01" ipr="trust200902">
   <front>
     <title abbrev="trnsprt-wide-cc-exts">RTP Extensions for Transport-wide Congestion Control</title>
 
@@ -74,7 +74,7 @@
       </address>
     </author>
 
-    <date day="9" month="March" year="2015" />
+    <date day="12" month="Oct" year="2015" />
 
     <abstract>
       <t>This document proposes an RTP header extension and an RTCP message
