@@ -344,8 +344,8 @@ Internet-Draft            trnsprt-wide-cc-exts              October 2015
 
    Note: In the case the base sequence number is decreased, creating a
    window overlapping the previous feedback messages, the status for any
-   packets previously reported as received must again be marked as
-   "Packet received" and the delta included again.
+   packets previously reported as received must be marked as "Packet not
+   received" and thus no delta included for that symbol.
 
 3.1.2.  Packet Status Chunks
 
