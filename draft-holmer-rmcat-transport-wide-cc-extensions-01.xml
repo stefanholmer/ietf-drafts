@@ -103,9 +103,9 @@
           <t>The congestion control algorithms are easier to maintain and
           improve as there is less synchronization between sender and receiver
           versions needed. It should be possible to implement
-          <xref target="I-D.alvestrand-rmcat-congestion"></xref>,
-          <xref target="I-D.zhu-rmcat-nada"></xref> and
-          <xref target="I-D.johansson-rmcat-scream-cc"></xref> with the
+          <xref target="I-D.ietf-rmcat-gcc"></xref>,
+          <xref target="I-D.ietf-rmcat-nada"></xref> and
+          <xref target="I-D.ietf-rmcat-scream-cc"></xref> with the
           proposed protocol.</t>
 
           <t>More flexibility in what algorithms are used, as long as they are
@@ -481,9 +481,9 @@ the run length of that symbol.</t>
     </references>
 
     <references title="Informative References">
-      <?rfc include="reference.I-D.alvestrand-rmcat-congestion"?>
-      <?rfc include="reference.I-D.zhu-rmcat-nada"?>
-      <?rfc include="reference.I-D.johansson-rmcat-scream-cc"?>
+      <?rfc include="reference.I-D.ietf-rmcat-gcc"?>
+      <?rfc include="reference.I-D.ietf-rmcat-nada"?>
+      <?rfc include="reference.I-D.ietf-rmcat-scream-cc"?>
 
     </references>
 

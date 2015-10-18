@@ -103,8 +103,8 @@ Table of Contents
    o  The congestion control algorithms are easier to maintain and
       improve as there is less synchronization between sender and
       receiver versions needed.  It should be possible to implement
-      [I-D.alvestrand-rmcat-congestion], [I-D.zhu-rmcat-nada] and
-      [I-D.johansson-rmcat-scream-cc] with the proposed protocol.
+      [I-D.ietf-rmcat-gcc], [I-D.ietf-rmcat-nada] and
+      [I-D.ietf-rmcat-scream-cc] with the proposed protocol.
 
 
 
@@ -185,7 +185,7 @@ Internet-Draft            trnsprt-wide-cc-exts              October 2015
    corresponding packet.  From these two timestamps the sender can
    compute metrics such as:
 
-   o  Link propagation time delta: d(i) = A(i) - S(i) - (A(i-1) -
+   o  Inter-packet delay variation: d(i) = A(i) - S(i) - (A(i-1) -
       S(i-1))
 
    o  Estimated queueing delay: q(i) = A(i) - S(i) -
@@ -202,21 +202,21 @@ Internet-Draft            trnsprt-wide-cc-exts              October 2015
 
    o  Increased feedback rate on the reverse direction.
 
-   Lost feedback messages shouldn't be a big problem as we could simply
-   ignore losses which coincide with lost feedback messages from a
-   congestion control perspective.  This is similar to what would happen
-   if an RTCP receiver report is lost.
+   From a congestion control perspective, lost feedback messages are
+   handled by ignoring packets which would have been reported as lost or
+   received in the lost feedback messages.  This behavior is similar to
+   how a lost RTCP receiver report is handled.
 
    It is recommended that a feedback message is sent for every frame
    received, but in cases of low uplink bandwidth it is acceptable to
-   send them less frequently, e.g., for instance once per RTT.
+   send them less frequently, e.g., for instance once per RTT, to reduce
+   the overhead.
 
 3.1.  Message format
 
    The message is an RTCP message with payload type 206.  RFC 3550
    [RFC3550] defines the range, RFC 4585 [RFC3550] defines the specific
    PT value 206 and the FMT value 15.
-
 
 
 
@@ -562,22 +562,22 @@ Holmer, et al.           Expires April 14, 2016                [Page 10]
 Internet-Draft            trnsprt-wide-cc-exts              October 2015
 
 
-   [I-D.alvestrand-rmcat-congestion]
-              Holmer, S., Lundin, H., Carlucci, G., Cicco, L., and S.
+   [I-D.ietf-rmcat-gcc]
+              Holmer, S., Marcon, J., Carlucci, G., Cicco, L., and S.
               Mascolo, "A Google Congestion Control Algorithm for Real-
-              Time Communication", draft-alvestrand-rmcat-congestion-03
-              (work in progress), June 2015.
+              Time Communication", draft-ietf-rmcat-gcc-00 (work in
+              progress), September 2015.
 
-   [I-D.johansson-rmcat-scream-cc]
+   [I-D.ietf-rmcat-nada]
+              Zhu, X., Pan, R., Ramalho, M., Cruz, S., Jones, P., Fu,
+              J., D'Aronco, S., and C. Ganzhorn, "NADA: A Unified
+              Congestion Control Scheme for Real-Time Media", draft-
+              ietf-rmcat-nada-01 (work in progress), October 2015.
+
+   [I-D.ietf-rmcat-scream-cc]
               Johansson, I. and Z. Sarker, "Self-Clocked Rate Adaptation
-              for Multimedia", draft-johansson-rmcat-scream-cc-05 (work
-              in progress), March 2015.
-
-   [I-D.zhu-rmcat-nada]
-              Zhu, X., Pan, R., Ramalho, M., Cruz, S., Ganzhorn, C.,
-              Jones, P., and S. D'Aronco, "NADA: A Unified Congestion
-              Control Scheme for Real-Time Media", draft-zhu-rmcat-
-              nada-06 (work in progress), March 2015.
+              for Multimedia", draft-ietf-rmcat-scream-cc-01 (work in
+              progress), July 2015.
 
 Appendix A.  Change log
 
