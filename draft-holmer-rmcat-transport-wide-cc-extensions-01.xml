@@ -193,14 +193,14 @@
         <t>Increased feedback rate on the reverse direction.</t>
       </list></t>
 
-      <t>Lost feedback messages shouldn't be a big problem as we could simply
-      ignore losses which coincide with lost feedback messages from a congestion
-      control perspective. This is similar to what would happen if an RTCP
-      receiver report is lost.</t>
+      <t>From a congestion control perspective, lost feedback messages are handled by
+      ignoring packets which would have been reported as lost or received in the lost 
+      feedback messages. This behavior is similar to how a lost RTCP receiver report
+      is handled.</t>
 
       <t>It is recommended that a feedback message is sent for every frame
       received, but in cases of low uplink bandwidth it is acceptable to send
-      them less frequently, e.g., for instance once per RTT.</t>
+      them less frequently, e.g., for instance once per RTT, to reduce the overhead.</t>
 
       <section title="Message format">
         <t>The message is an RTCP message with payload type 206. RFC 3550
