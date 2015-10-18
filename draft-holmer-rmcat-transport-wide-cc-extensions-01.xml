@@ -178,7 +178,7 @@
       timestamps the sender can compute metrics such as:</t>
 
       <t><list style="symbols">
-        <t>Link propagation time delta: d(i) = A(i) - S(i) - (A(i-1) - S(i-1))</t>
+        <t>Inter-packet delay variation: d(i) = A(i) - S(i) - (A(i-1) - S(i-1))</t>
         <t>Estimated queueing delay: q(i) = A(i) - S(i) - min{j=i-1..i-w}(A(j) - S(j))</t>
       </list></t>
 
@@ -294,7 +294,7 @@ For each "packet received" status, in the packet status chunks, a receive delta 
 
           <t>For each packet received with a delta, to the previous received packet, within +/-8191.75ms, a receive delta block is appended to the feedback message.</t>
 
-          <t>Note: In the case the base sequence number is decreased, creating a window overlapping the previous feedback messages, the status for any packets previously reported as received must again be marked as "Packet received" and the delta included again.</t>
+          <t>Note: In the case the base sequence number is decreased, creating a window overlapping the previous feedback messages, the status for any packets previously reported as received must be marked as "Packet not received" and thus no delta included for that symbol.</t>
         </section>
         <section title="Packet Status Chunks">
           <t>Packet status is described in chunks, similar to a Loss RLE Report Block.
