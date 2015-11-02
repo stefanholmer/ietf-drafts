@@ -349,11 +349,11 @@ the run length of that symbol.</t>
     0                   1
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |0|1 1|0 0 0 0 0 0 0 0 1 1 0 0 0|
+   |0|1 0|0 0 0 0 0 0 0 0 1 1 0 0 0|
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             ]]></artwork>
           </figure>
-          <t>This is a run of the "packet received, w/o recv delta" status of length 24.</t>
+          <t>This is a run of the "packet received, large or negative delta" status of length 24.</t>
         </section>
         <section title="Status Vector Chunk">
           <t>A status vector chunk starts with a 1 bit to identify it as a vector chunk, followed by a symbol size bit and then 7 or 14 symbols, depending on the size bit.</t>
