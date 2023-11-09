@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>RTP Extensions for Transport-wide Congestion Control</title>
+<meta content="Stefan Holmer" name="author">
+<meta content="Magnus Flodman" name="author">
+<meta content="Erik Sprang" name="author">
+<meta content="
+       This document proposes an RTP header extension and an RTCP message
+      for use in congestion control algorithms for RTP-based media flows. It
+      adds transport-wide packet sequence numbers and corresponding feedback
+      message so that congestion control can be performed on a transport level
+      at the send-side, while keeping the receiver dumb. 
+    " name="description">
+<meta content="xml2rfc 3.18.2" name="generator">
+<meta content="draft-holmer-rmcat-transport-wide-cc-extensions-01" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.18.2
+    Python 3.10.12
+    ConfigArgParse 1.7
+    google-i18n-address 3.1.0
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 4.9.3
+    platformdirs 3.11.0
+    pycountry 22.3.5
+    PyYAML 6.0.1
+    requests 2.31.0
+    setuptools 59.6.0
+    six 1.16.0
+    wcwidth 0.2.8
+    weasyprint 60.1
+-->
+<link href="/usr/src/app/tmp/a2cde429-5b44-42a6-8bbf-1b6cd26d3c66/draft-holmer-rmcat-transport-wide-cc-extensions-01.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">/*
+
+  NOTE: Changes at the bottom of this file overrides some earlier settings.
+
+  Once the style has stabilized and has been adopted as an official RFC style,
+  this can be consolidated so that style settings occur only in one place, but
+  for now the contents of this file consists first of the initial CSS work as
+  provided to the RFC Formatter (xml2rfc) work, followed by itemized and
+  commented changes found necessary during the development of the v3
+  formatters.
+
+*/
+
+/* fonts */
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans'); /* Sans-serif */
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif'); /* Serif (print) */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono'); /* Monospace */
+
+:root {
+  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
+  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
+}
+
+@viewport {
+  zoom: 1.0;
+}
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
+}
+/* general and mobile first */
+html {
+}
+body {
+  max-width: 90%;
+  margin: 1.5em auto;
+  color: #222;
+  background-color: #fff;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-wrap: break-word;
+}
+.ears {
+  display: none;
+}
+
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  margin: 1em 0 0.5em;
+  font-weight: bold;
+  line-height: 1.3;
+}
+#title {
+  clear: both;
+  border-bottom: 1px solid #ddd;
+  margin: 0 0 0.5em 0;
+  padding: 1em 0 0.5em;
+}
+.author {
+  padding-bottom: 4px;
+}
+h1 {
+  font-size: 26px;
+  margin: 1em 0;
+}
+h2 {
+  font-size: 22px;
+  margin-top: -20px;  /* provide offset for in-page anchors */
+  padding-top: 33px;
+}
+h3 {
+  font-size: 18px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h4 {
+  font-size: 16px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h5, h6 {
+  font-size: 14px;
+}
+#n-copyright-notice {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+/* general structure */
+p {
+  padding: 0;
+  margin: 0 0 1em 0;
+  text-align: left;
+}
+div, span {
+  position: relative;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+svg[font-family~="serif" i], svg [font-family~="serif" i] {
+  font-family: var(--font-serif);
+}
+svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
+  font-family: var(--font-sans);
+}
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  display: table;
+  border: none;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 1em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.ulBare, li.ulBare {
+  margin-left: 0em !important;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+/* 
+dl.nohang > dt {
+  float: none;
+}
+*/
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+
+/* links */
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #22e; /* Arlen: WCAG 2019 */
+}
+a[href]:hover {
+  background-color: #f2f2f2;
+}
+figcaption a[href],
+a[href].selfRef,
+.iref + a[href].internal {
+  color: #222;
+}
+/* XXX probably not this:
+a.selfRef:hover {
+  background-color: transparent;
+  cursor: default;
+} */
+
+/* Figures */
+tt, code, pre {
+  background-color: #f9f9f9;
+  font-family: var(--font-mono);
+}
+pre {
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 1em;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption {
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+@media screen {
+  pre {
+    overflow-x: auto;
+    max-width: 100%;
+    max-width: calc(100% - 22px);
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 1.2em 2em;
+}
+blockquote {
+  background-color: #f9f9f9;
+  color: #111; /* Arlen: WCAG 2019 */
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 1em 0;
+}
+blockquote > *:last-child {
+  margin-bottom: 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.75em;
+}
+th {
+  text-align: left;
+  background-color: #e9e9e9;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f5f5f5;
+}
+table caption {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+table p {
+  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
+     be allowed within tables more generally, it would be far better to select on a class. */
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  color: #666; /* Arlen: AHDJ 2019 */
+  text-decoration: none;
+  visibility: hidden;
+  user-select: none;
+  -ms-user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+@media screen {
+  aside:hover > a.pilcrow,
+  p:hover > a.pilcrow,
+  blockquote:hover > a.pilcrow,
+  div:hover > a.pilcrow,
+  li:hover > a.pilcrow,
+  pre:hover > a.pilcrow {
+    visibility: visible;
+  }
+  a.pilcrow:hover {
+    background-color: transparent;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: 0.9em;
+}
+#identifiers dt {
+  width: 3em;
+  clear: left;
+}
+#identifiers dd {
+  float: left;
+  margin-bottom: 0;
+}
+/* Fix PDF info block run off issue */
+@media print {
+  #identifiers dd {
+    float: none;
+  }
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #666; /* Arlen: WCAG 2019 */
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc  {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+nav.toc ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+nav.toc li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 600px) {
+  .index ul {
+    -moz-column-count: 2;
+    -moz-column-gap: 20px;
+  }
+  .index ul ul {
+    -moz-column-count: 1;
+    -moz-column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  font-family: var(--font-sans);
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+
+/* temporary notes */
+.rfcEditorRemove::before {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0.2em;
+  content: "The RFC Editor will remove this note";
+  color: #9e2a00; /* Arlen: WCAG 2019 */
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+}
+.rfcEditorRemove {
+  position: relative;
+  padding-top: 1.8em;
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  border-radius: 3px;
+}
+.cref {
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 1023px) {
+  body {
+    padding-top: 2em;
+  }
+  #title {
+    padding: 1em 0;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: -18px;  /* provide offset for in-page anchors */
+    padding-top: 38px;
+  }
+  #identifiers dd {
+    max-width: 60%;
+  }
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    background-color: inherit;
+    border-bottom: 1px solid #ccc;
+  }
+  #toc h2 {
+    margin: -1px 0 0 0;
+    padding: 4px 0 4px 6px;
+    padding-right: 1em;
+    min-width: 190px;
+    font-size: 1.1em;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 6px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 1024px) {
+  body {
+    max-width: 724px;
+    margin: 42px auto;
+    padding-left: 1.5em;
+    padding-right: 29em;
+  }
+  #toc {
+    position: fixed;
+    top: 42px;
+    right: 42px;
+    width: 25%;
+    margin: 0;
+    padding: 0 1em;
+    z-index: 1;
+  }
+  #toc h2 {
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 0;
+    overflow: auto;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  .breakable pre {
+    break-inside: auto;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+/* This is commented out here, as the string-set: doesn't
+   pass W3C validation currently */
+/*
+.ears thead .left {
+  string-set: ears-top-left content();
+}
+
+.ears thead .center {
+  string-set: ears-top-center content();
+}
+
+.ears thead .right {
+  string-set: ears-top-right content();
+}
+
+.ears tfoot .left {
+  string-set: ears-bottom-left content();
+}
+
+.ears tfoot .center {
+  string-set: ears-bottom-center content();
+}
+
+.ears tfoot .right {
+  string-set: ears-bottom-right content();
+}
+*/
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+  /* The following is commented out here, but set appropriately by in code, as
+     the content depends on the document */
+  /*
+  @top-left {
+    content: 'Internet-Draft';
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-left {
+    content: string(ears-top-left);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-center {
+    content: string(ears-top-center);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-right {
+    content: string(ears-top-right);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @bottom-left {
+    content: string(ears-bottom-left);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-center {
+    content: string(ears-bottom-center);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-right {
+      content: '[Page ' counter(page) ']';
+      vertical-align: top;
+      border-top: solid 1px #ccc;
+  }
+  */
+
+}
+
+/* Changes introduced to fix issues found during implementation */
+/* Make sure links are clickable even if overlapped by following H* */
+a {
+  z-index: 2;
+}
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Leave room in document info to show Internet-Draft on one line */
+#identifiers dt {
+  width: 8em;
+}
+
+/* Don't waste quite as much whitespace between label and value in doc info */
+#identifiers dd {
+  margin-left: 1em;
+}
+
+/* Give floating toc a background color (needed when it's a div inside section */
+#toc {
+  background-color: white;
+}
+
+/* Make the collapsed ToC header render white on gray also when it's a link */
+@media screen and (max-width: 1023px) {
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+}
+
+/* Give the bottom of the ToC some whitespace */
+@media screen and (min-width: 1024px) {
+  #toc {
+    padding: 0 0 1em 1em;
+  }
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* prevent monospace from becoming overly large */
+tt, code, pre {
+  font-size: 95%;
+}
+
+/* Fix the height/width aspect for ascii art*/
+.sourcecode pre,
+.art-text pre {
+  line-height: 1.12;
+}
+
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin-right: 0.5em;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table td.text-left,
+table th.text-left {
+  text-align: left;
+}
+table td.text-center,
+table th.text-center {
+  text-align: center;
+}
+table td.text-right,
+table th.text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 30em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Provide table alignment support.  We can't use the alignX classes above
+   since they do unwanted things with caption and other styling. */
+table.right {
+ margin-left: auto;
+ margin-right: 0;
+}
+table.center {
+ margin-left: auto;
+ margin-right: auto;
+}
+table.left {
+ margin-left: 0;
+ margin-right: auto;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+caption a[href] {
+  color: #222;
+}
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+/* Tweak the invisible space above H* in order not to overlay links in text above */
+ h2 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 31px;
+ }
+ h3 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+ h4 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+/* Float artwork pilcrow to the right */
+@media screen {
+  .artwork a.pilcrow {
+    display: block;
+    line-height: 0.7;
+    margin-top: 0.15em;
+  }
+}
+/* Make pilcrows on dd visible */
+@media screen {
+  dd:hover > a.pilcrow {
+    visibility: visible;
+  }
+}
+/* Make the placement of figcaption match that of a table's caption
+   by removing the figure's added bottom margin */
+.alignLeft.art-text,
+.alignCenter.art-text,
+.alignRight.art-text {
+   margin-bottom: 0;
+}
+.alignLeft,
+.alignCenter,
+.alignRight {
+  margin: 1em 0 0 0;
+}
+/* In print, the pilcrow won't show on hover, so prevent it from taking up space,
+   possibly even requiring a new line */
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+/* Styling for the external metadata */
+div#external-metadata {
+  background-color: #eee;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  display: none;
+}
+div#internal-metadata {
+  padding: 0.5em;                       /* to match the external-metadata padding */
+}
+/* Styling for title RFC Number */
+h1#rfcnum {
+  clear: both;
+  margin: 0 0 -1em;
+  padding: 1em 0 0 0;
+}
+/* Make .olPercent look the same as <ol><li> */
+dl.olPercent > dd {
+  margin-bottom: 0.25em;
+  min-height: initial;
+}
+/* Give aside some styling to set it apart */
+aside {
+  border-left: 1px solid #ddd;
+  margin: 1em 0 1em 2em;
+  padding: 0.2em 2em;
+}
+aside > dl,
+aside > ol,
+aside > ul,
+aside > table,
+aside > p {
+  margin-bottom: 0.5em;
+}
+/* Additional page break settings */
+@media print {
+  figcaption, table caption {
+    page-break-before: avoid;
+  }
+}
+/* Font size adjustments for print */
+@media print {
+  body  { font-size: 10pt;      line-height: normal; max-width: 96%; }
+  h1    { font-size: 1.72em;    padding-top: 1.5em; } /* 1*1.2*1.2*1.2 */
+  h2    { font-size: 1.44em;    padding-top: 1.5em; } /* 1*1.2*1.2 */
+  h3    { font-size: 1.2em;     padding-top: 1.5em; } /* 1*1.2 */
+  h4    { font-size: 1em;       padding-top: 1.5em; }
+  h5, h6 { font-size: 1em;      margin: initial; padding: 0.5em 0 0.3em; }
+}
+/* Sourcecode margin in print, when there's no pilcrow */
+@media print {
+  .artwork,
+  .artwork > pre,
+  .sourcecode {
+    margin-bottom: 1em;
+  }
+}
+/* Avoid narrow tables forcing too narrow table captions, which may render badly */
+table {
+  min-width: 20em;
+}
+/* ol type a */
+ol.type-a { list-style-type: lower-alpha; }
+ol.type-A { list-style-type: upper-alpha; }
+ol.type-i { list-style-type: lower-roman; }
+ol.type-I { list-style-type: lower-roman; }
+/* Apply the print table and row borders in general, on request from the RPC,
+and increase the contrast between border and odd row background slightly */
+table {
+  border: 1px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+}
+tr {
+  break-inside: avoid;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f8f8f8;
+}
+/* Use style rules to govern display of the TOC. */
+@media screen and (max-width: 1023px) {
+  #toc nav { display: none; }
+  #toc.active nav { display: block; }
+}
+/* Add support for keepWithNext */
+.keepWithNext {
+  break-after: avoid-page;
+  break-after: avoid-page;
+}
+/* Add support for keepWithPrevious */
+.keepWithPrevious {
+  break-before: avoid-page;
+}
+/* Change the approach to avoiding breaks inside artwork etc. */
+figure, pre, table, .artwork, .sourcecode  {
+  break-before: auto;
+  break-after: auto;
+}
+/* Avoid breaks between <dt> and <dd> */
+dl {
+  break-before: auto;
+  break-inside: auto;
+}
+dt {
+  break-before: auto;
+  break-after: avoid-page;
+}
+dd {
+  break-before: avoid-page;
+  break-after: auto;
+  orphans: 3;
+  widows: 3
+}
+span.break, dd.break {
+  margin-bottom: 0;
+  min-height: 0;
+  break-before: auto;
+  break-inside: auto;
+  break-after: auto;
+}
+/* Undo break-before ToC */
+@media print {
+  #toc {
+    break-before: auto;
+  }
+}
+/* Text in compact lists should not get extra bottom margin space,
+   since that would makes the list not compact */
+ul.compact p, .ulCompact p,
+ol.compact p, .olCompact p {
+ margin: 0;
+}
+/* But the list as a whole needs the extra space at the end */
+section ul.compact,
+section .ulCompact,
+section ol.compact,
+section .olCompact {
+  margin-bottom: 1em;                    /* same as p not within ul.compact etc. */
+}
+/* The tt and code background above interferes with for instance table cell
+   backgrounds.  Changed to something a bit more selective. */
+tt, code {
+  background-color: transparent;
+}
+p tt, p code, li tt, li code {
+  background-color: #f8f8f8;
+}
+/* Tweak the pre margin -- 0px doesn't come out well */
+pre {
+   margin-top: 0.5px;
+}
+/* Tweak the compact list text */
+ul.compact, .ulCompact,
+ol.compact, .olCompact,
+dl.compact, .dlCompact {
+  line-height: normal;
+}
+/* Don't add top margin for nested lists */
+li > ul, li > ol, li > dl,
+dd > ul, dd > ol, dd > dl,
+dl > dd > dl {
+  margin-top: initial;
+}
+/* Elements that should not be rendered on the same line as a <dt> */
+/* This should match the element list in writer.text.TextWriter.render_dl() */
+dd > div.artwork:first-child,
+dd > aside:first-child,
+dd > figure:first-child,
+dd > ol:first-child,
+dd > div.sourcecode:first-child,
+dd > table:first-child,
+dd > ul:first-child {
+  clear: left;
+}
+/* fix for weird browser behaviour when <dd/> is empty */
+dt+dd:empty::before{
+  content: "\00a0";
+}
+/* Make paragraph spacing inside <li> smaller than in body text, to fit better within the list */
+li > p {
+  margin-bottom: 0.5em
+}
+/* Don't let p margin spill out from inside list items */
+li > p:last-of-type:only-child {
+  margin-bottom: 0;
+}
+</style>
+<link href="rfc-local.css" rel="stylesheet" type="text/css">
+<script type="application/javascript">async function addMetadata(){try{const e=document.styleSheets[0].cssRules;for(let t=0;t<e.length;t++)if(/#identifiers/.exec(e[t].selectorText)){const a=e[t].cssText.replace("#identifiers","#external-updates");document.styleSheets[0].insertRule(a,document.styleSheets[0].cssRules.length)}}catch(e){console.log(e)}const e=document.getElementById("external-metadata");if(e)try{var t,a="",o=function(e){const t=document.getElementsByTagName("meta");for(let a=0;a<t.length;a++)if(t[a].getAttribute("name")===e)return t[a].getAttribute("content");return""}("rfc.number");if(o){t="https://www.rfc-editor.org/rfc/rfc"+o+".json";try{const e=await fetch(t);a=await e.json()}catch(e){t=document.URL.indexOf("html")>=0?document.URL.replace(/html$/,"json"):document.URL+".json";const o=await fetch(t);a=await o.json()}}if(!a)return;e.style.display="block";const s="",d="https://datatracker.ietf.org/doc",n="https://datatracker.ietf.org/ipr/search",c="https://www.rfc-editor.org/info",l=a.doc_id.toLowerCase(),i=a.doc_id.slice(0,3).toLowerCase(),f=a.doc_id.slice(3).replace(/^0+/,""),u={status:"Status",obsoletes:"Obsoletes",obsoleted_by:"Obsoleted By",updates:"Updates",updated_by:"Updated By",see_also:"See Also",errata_url:"Errata"};let h="<dl style='overflow:hidden' id='external-updates'>";["status","obsoletes","obsoleted_by","updates","updated_by","see_also","errata_url"].forEach(e=>{if("status"==e){a[e]=a[e].toLowerCase();var t=a[e].split(" "),o=t.length,w="",p=1;for(let e=0;e<o;e++)p<o?w=w+r(t[e])+" ":w+=r(t[e]),p++;a[e]=w}else if("obsoletes"==e||"obsoleted_by"==e||"updates"==e||"updated_by"==e){var g,m="",b=1;g=a[e].length;for(let t=0;t<g;t++)a[e][t]&&(a[e][t]=String(a[e][t]).toLowerCase(),m=b<g?m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>, ":m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>",b++);a[e]=m}else if("see_also"==e){var y,L="",C=1;y=a[e].length;for(let t=0;t<y;t++)if(a[e][t]){a[e][t]=String(a[e][t]);var _=a[e][t].slice(0,3),v=a[e][t].slice(3).replace(/^0+/,"");L=C<y?"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>, ":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>, ":"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>",C++}a[e]=L}else if("errata_url"==e){var R="";R=a[e]?R+"<a href='"+a[e]+"'>Errata exist</a> | <a href='"+d+"/"+l+"'>Datatracker</a>| <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>":"<a href='"+d+"/"+l+"'>Datatracker</a> | <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>",a[e]=R}""!=a[e]?"Errata"==u[e]?h+=`<dt>More info:</dt><dd>${a[e]}</dd>`:h+=`<dt>${u[e]}:</dt><dd>${a[e]}</dd>`:"Errata"==u[e]&&(h+=`<dt>More info:</dt><dd>${a[e]}</dd>`)}),h+="</dl>",e.innerHTML=h}catch(e){console.log(e)}else console.log("Could not locate metadata <div> element");function r(e){return e.charAt(0).toUpperCase()+e.slice(1)}}window.removeEventListener("load",addMetadata),window.addEventListener("load",addMetadata);</script>
+</head>
+<body class="xml2rfc">
+<script src="metadata.min.js"></script>
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">trnsprt-wide-cc-exts</td>
+<td class="right">October 2015</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Holmer, et al.</td>
+<td class="center">Expires 21 April 2016</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Network Working Group</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-holmer-rmcat-transport-wide-cc-extensions-01</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2015-10-19" class="published">19 October 2015</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Experimental</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2016-04-21">21 April 2016</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">S. Holmer</div>
+<div class="org">Google</div>
+</div>
+<div class="author">
+      <div class="author-name">M. Flodman</div>
+<div class="org">Google</div>
+</div>
+<div class="author">
+      <div class="author-name">E. Sprang</div>
+<div class="org">Google</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">RTP Extensions for Transport-wide Congestion Control</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document proposes an RTP header extension and an RTCP message
+      for use in congestion control algorithms for RTP-based media flows. It
+      adds transport-wide packet sequence numbers and corresponding feedback
+      message so that congestion control can be performed on a transport level
+      at the send-side, while keeping the receiver dumb.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note" id="section-note.1">
+      <h2 id="name-requirements-language">
+<a href="#name-requirements-language" class="section-name selfRef">Requirements Language</a>
+      </h2>
+<p id="section-note.1-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span>.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="http://datatracker.ietf.org/drafts/current/">http://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 21 April 2016.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2015 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="http://trustee.ietf.org/license-info">http://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-transport-wide-sequence-num" class="internal xref">Transport-wide Sequence Number</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-semantics" class="internal xref">Semantics</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1" class="keepWithNext"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-rtp-header-extension-format" class="internal xref">RTP header extension format</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-signaling-of-use-of-this-ex" class="internal xref">Signaling of use of this extension</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-transport-wide-rtcp-feedbac" class="internal xref">Transport-wide RTCP Feedback Message</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-message-format" class="internal xref">Message format</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.1">
+                    <p id="section-toc.1-1.3.2.1.2.1.1"><a href="#section-3.1.1" class="auto internal xref">3.1.1</a>.  <a href="#name-packet-status-symbols" class="internal xref">Packet Status Symbols</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.2">
+                    <p id="section-toc.1-1.3.2.1.2.2.1"><a href="#section-3.1.2" class="auto internal xref">3.1.2</a>.  <a href="#name-packet-status-chunks" class="internal xref">Packet Status Chunks</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.3">
+                    <p id="section-toc.1-1.3.2.1.2.3.1"><a href="#section-3.1.3" class="auto internal xref">3.1.3</a>.  <a href="#name-run-length-chunk" class="internal xref">Run Length Chunk</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.4">
+                    <p id="section-toc.1-1.3.2.1.2.4.1"><a href="#section-3.1.4" class="auto internal xref">3.1.4</a>.  <a href="#name-status-vector-chunk" class="internal xref">Status Vector Chunk</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.5">
+                    <p id="section-toc.1-1.3.2.1.2.5.1"><a href="#section-3.1.5" class="auto internal xref">3.1.5</a>.  <a href="#name-receive-delta" class="internal xref">Receive Delta</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-sdp-signaling" class="internal xref">SDP Signaling</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-overhead-discussion" class="internal xref">Overhead discussion</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-iana-considerations" class="internal xref">IANA considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-change-log" class="internal xref">Change log</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#appendix-A.1" class="auto internal xref">A.1</a>.  <a href="#name-first-version" class="internal xref">First version</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">This document proposes RTP header extension containing a transport-wide
+      packet sequence number and an RTCP feedback message feeding back the
+      arrival times and sequence numbers of the packets received on a
+      connection.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">Some of the benefits that these extensions bring are:<a href="#section-1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.1">
+          <p id="section-1-3.1.1">The congestion control algorithms are easier to maintain and
+          improve as there is less synchronization between sender and receiver
+          versions needed. It should be possible to implement
+          <span>[<a href="#I-D.ietf-rmcat-gcc" class="cite xref">I-D.ietf-rmcat-gcc</a>]</span>,
+          <span>[<a href="#I-D.ietf-rmcat-nada" class="cite xref">I-D.ietf-rmcat-nada</a>]</span> and
+          <span>[<a href="#I-D.ietf-rmcat-scream-cc" class="cite xref">I-D.ietf-rmcat-scream-cc</a>]</span> with the
+          proposed protocol.<a href="#section-1-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-3.2">
+          <p id="section-1-3.2.1">More flexibility in what algorithms are used, as long as they are
+          having most of their logic on the send-side. For instance different
+          behavior can be used depending on if the rate produced is application
+          limited or not.<a href="#section-1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+<section id="section-2">
+      <h2 id="name-transport-wide-sequence-num">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-transport-wide-sequence-num" class="section-name selfRef">Transport-wide Sequence Number</a>
+      </h2>
+<p id="section-2-1"></p>
+<section id="section-2.1">
+        <h3 id="name-semantics">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-semantics" class="section-name selfRef">Semantics</a>
+        </h3>
+<p id="section-2.1-1">This RTP header extension is added on the transport layer, and uses
+        the same counter for all packets which are sent over the same
+        connection (for instance as defined by bundle).<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">The benefit with a transport-wide sequence numbers is two-fold:<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.1-3.1">
+            <p id="section-2.1-3.1.1">It is a better fit for congestion control as the congestion
+          controller doesn't operate on media streams, but on packet flows.<a href="#section-2.1-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-2.1-3.2">
+            <p id="section-2.1-3.2.1">It allows for earlier packet loss detection (and recovery) since a
+          loss in stream A can be detected when a packet from stream B is
+          received, thus we don't have to wait until the next packet of stream A
+          is received.<a href="#section-2.1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+<section id="section-2.2">
+        <h3 id="name-rtp-header-extension-format">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-rtp-header-extension-format" class="section-name selfRef">RTP header extension format</a>
+        </h3>
+<p id="section-2.2-1">This document describes a message using the application specific
+        payload type. This is suitable for experimentation; upon
+        standardization, a specific type can be assigned for the purpose.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.2-2">
+<pre>
+  0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |       0xBE    |    0xDE       |           length=1            |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |  ID   | L=1   |transport-wide sequence number | zero padding  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+</pre><a href="#section-2.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-2.2-3">An RTP header extension with a 16 bits sequence number attached to
+        all packets sent. This sequence number is incremented by 1 for each
+        packet being sent over the same socket.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.3">
+        <h3 id="name-signaling-of-use-of-this-ex">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-signaling-of-use-of-this-ex" class="section-name selfRef">Signaling of use of this extension</a>
+        </h3>
+<p id="section-2.3-1">When signalled in SDP, the standard mechanism for RTP header
+        extensions <span>[<a href="#RFC5285" class="cite xref">RFC5285</a>]</span> is used:<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">a=extmap:5
+        http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-3">
+      <h2 id="name-transport-wide-rtcp-feedbac">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-transport-wide-rtcp-feedbac" class="section-name selfRef">Transport-wide RTCP Feedback Message</a>
+      </h2>
+<p id="section-3-1">To allow the most freedom possible to the sender, information about
+      each packet delivered is needed. The simplest way of accomplishing that is
+      to have the receiver send back a message containing an arrival timestamp
+      and a packet identifier for each packet received. This way, the  receiver
+      is dumb and simply records arrival timestamps (A) of packets. The sender
+      keeps a map of in-flight packets, and upon feedback arrival it looks up
+      the on-wire timestamp (S) of the corresponding packet. From these two
+      timestamps the sender can compute metrics such as:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-2.1">
+          <p id="section-3-2.1.1">Inter-packet delay variation: d(i) = A(i) - S(i) - (A(i-1) - S(i-1))<a href="#section-3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.2">
+          <p id="section-3-2.2.1">Estimated queueing delay: q(i) = A(i) - S(i) - min{j=i-1..i-w}(A(j) - S(j))<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-3">Since the sender gets feedback about each packet sent, it will be set
+      to better assess the cost of sending bursts of packets compared to aiming
+      at sending at a constant rate decided by the receiver.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<p id="section-3-4">Two down-sides with this approach are:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-5.1">
+          <p id="section-3-5.1.1">It isn't possible to differentiate between lost feedback on the
+        downlink and lost packets on the uplink.<a href="#section-3-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-5.2">
+          <p id="section-3-5.2.1">Increased feedback rate on the reverse direction.<a href="#section-3-5.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-6">From a congestion control perspective, lost feedback messages are handled by
+      ignoring packets which would have been reported as lost or received in the lost
+      feedback messages. This behavior is similar to how a lost RTCP receiver report
+      is handled.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">It is recommended that a feedback message is sent for every frame
+      received, but in cases of low uplink bandwidth it is acceptable to send
+      them less frequently, e.g., for instance once per RTT, to reduce the overhead.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<section id="section-3.1">
+        <h3 id="name-message-format">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-message-format" class="section-name selfRef">Message format</a>
+        </h3>
+<p id="section-3.1-1">The message is an RTCP message with payload type 206.
+        <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> defines the range,
+        <span>[<a href="#RFC4585" class="cite xref">RFC4585</a>]</span> defines the specific PT value 206 and
+        the FMT value 15.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-2">
+<pre>
+
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |V=2|P|  FMT=15 |    PT=205     |           length              |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                     SSRC of packet sender                     |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                      SSRC of media source                     |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |      base sequence number     |      packet status count      |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                 reference time                | fb pkt. count |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |          packet chunk         |         packet chunk          |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     .                                                               .
+     .                                                               .
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |         packet chunk          |  recv delta   |  recv delta   |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     .                                                               .
+     .                                                               .
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |           recv delta          |  recv delta   | zero padding  |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+</pre><a href="#section-3.1-2" class="pilcrow">¶</a>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-3.1-3">
+          <dt id="section-3.1-3.1">version (V):</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.2">2 bits
+     This field identifies the RTP version.  The current version is 2.<a href="#section-3.1-3.2" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.3">padding (P):</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.4">1 bit
+If set, the padding bit indicates that the packet contains additional padding octets at the end that are not part of the control information but are included in the length field.<a href="#section-3.1-3.4" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.5">feedback message type (FMT):</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.6">5 bits
+This field identifies the type of the FB message. It must have the value 15.<a href="#section-3.1-3.6" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.7">payload type (PT):</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.8">8 bits
+This is the RTCP packet type that identifies the packet as being an RTCP FB message. The value must be RTPFB = 205.<a href="#section-3.1-3.8" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.9">SSRC of packet sender:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.10">32 bits
+The synchronization source identifier for the originator of this packet.<a href="#section-3.1-3.10" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.11">SSRC of media source:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.12">32 bits
+The synchronization source identifier of the media source that this piece of feedback information is related to.
+
+TODO: This is transport wide, do we just pick any of the media source SSRCs?<a href="#section-3.1-3.12" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.13">base sequence number:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.14">16 bits
+The transport-wide sequence number of the first packet in this feedback. This number is not necessarily increased for every feedback; in the case of reordering it may be decreased.<a href="#section-3.1-3.14" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.15">packet status count:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.16">16 bits
+The number of packets this feedback contains status for, starting with the packet identified by the base sequence number.<a href="#section-3.1-3.16" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.17">reference time:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.18">24 bits
+Signed integer indicating an absolute reference time in some (unknown) time base chosen by the sender of the feedback packets. The value is to be interpreted in multiples of 64ms. The first recv delta in this packet is relative to the reference time. The reference time makes it possible to calculate the delta between feedbacks even if some feedback packets are lost, since it always uses the same time base.<a href="#section-3.1-3.18" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.19">feedback packet count:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.20">8 bits
+A counter incremented by one for each feedback packet sent. Used to detect feedback packet losses.<a href="#section-3.1-3.20" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.21">packet chunk:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.22">16 bits
+A list of packet status chunks. These indicate the status of a number of packets starting with the one identified by base sequence number. See below for details.<a href="#section-3.1-3.22" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-3.1-3.23">recv delta:</dt>
+          <dd style="margin-left: 6.0em" id="section-3.1-3.24">8 bits
+For each "packet received" status, in the packet status chunks, a receive delta block will follow. See details below.<a href="#section-3.1-3.24" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<section id="section-3.1.1">
+          <h4 id="name-packet-status-symbols">
+<a href="#section-3.1.1" class="section-number selfRef">3.1.1. </a><a href="#name-packet-status-symbols" class="section-name selfRef">Packet Status Symbols</a>
+          </h4>
+<p id="section-3.1.1-1">The status of a packet is described using a 2-bit symbol:<a href="#section-3.1.1-1" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-3.1.1-2.1">
+              <p id="section-3.1.1-2.1.1">00  Packet not received<a href="#section-3.1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.1-2.2">
+              <p id="section-3.1.1-2.2.1">01  Packet received, small delta<a href="#section-3.1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.1-2.3">
+              <p id="section-3.1.1-2.3.1">10  Packet received, large or negative delta<a href="#section-3.1.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.1-2.4">
+              <p id="section-3.1.1-2.4.1">11  [Reserved]<a href="#section-3.1.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-3.1.1-3">Packets with status "Packet not received" should not necessarily be interpreted as lost. They might just not have arrived yet.<a href="#section-3.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1.1-4">For each packet received with a delta, to the previous received packet, within +/-8191.75ms, a receive delta block is appended to the feedback message.<a href="#section-3.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1.1-5">Note: In the case the base sequence number is decreased, creating a window overlapping the previous feedback messages, the status for any packets previously reported as received must be marked as "Packet not received" and thus no delta included for that symbol.<a href="#section-3.1.1-5" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.1.2">
+          <h4 id="name-packet-status-chunks">
+<a href="#section-3.1.2" class="section-number selfRef">3.1.2. </a><a href="#name-packet-status-chunks" class="section-name selfRef">Packet Status Chunks</a>
+          </h4>
+<p id="section-3.1.2-1">Packet status is described in chunks, similar to a Loss RLE Report Block.
+             The are two different kinds of chunks:<a href="#section-3.1.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1.2-2.1">
+              <p id="section-3.1.2-2.1.1">Run length chunk<a href="#section-3.1.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3.1.2-2.2">
+              <p id="section-3.1.2-2.2.1">Status vector chunk<a href="#section-3.1.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-3.1.2-3">All chunk types are 16 bits in length. The first bit of the chunk identifies whether it is an RLE chunk or a vector chunk.<a href="#section-3.1.2-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.1.3">
+          <h4 id="name-run-length-chunk">
+<a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-run-length-chunk" class="section-name selfRef">Run Length Chunk</a>
+          </h4>
+<p id="section-3.1.3-1">A run length chunk starts with 0 bit, followed by a packet status symbol and
+the run length of that symbol.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.3-2">
+<pre>
+    0                   1
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |T| S |       Run Length        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre><a href="#section-3.1.3-2" class="pilcrow">¶</a>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-3.1.3-3">
+            <dt id="section-3.1.3-3.1">chunk type (T):</dt>
+            <dd style="margin-left: 6.0em" id="section-3.1.3-3.2">1 bit
+         A zero identifies this as a run length chunk.<a href="#section-3.1.3-3.2" class="pilcrow">¶</a>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.3">packet status symbol (S):</dt>
+            <dd style="margin-left: 6.0em" id="section-3.1.3-3.4">2 bits
+         The symbol repeated in this run. See above.<a href="#section-3.1.3-3.4" class="pilcrow">¶</a>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.5">run length (L):</dt>
+            <dd style="margin-left: 6.0em" id="section-3.1.3-3.6">13 bits
+         An unsigned integer denoting the run length.<a href="#section-3.1.3-3.6" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+</dl>
+<p id="section-3.1.3-4" class="keepWithNext">Example 1:<a href="#section-3.1.3-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.3-5">
+<pre>
+    0                   1
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |0|0 0|0 0 0 0 0 1 1 0 1 1 1 0 1|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre><a href="#section-3.1.3-5" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1.3-6">This is a run of the "packet not received" status of length 221.<a href="#section-3.1.3-6" class="pilcrow">¶</a></p>
+<p id="section-3.1.3-7" class="keepWithNext">Example 2:<a href="#section-3.1.3-7" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.3-8">
+<pre>
+    0                   1
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |0|1 0|0 0 0 0 0 0 0 0 1 1 0 0 0|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre><a href="#section-3.1.3-8" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1.3-9">This is a run of the "packet received, large or negative delta" status of length 24.<a href="#section-3.1.3-9" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.1.4">
+          <h4 id="name-status-vector-chunk">
+<a href="#section-3.1.4" class="section-number selfRef">3.1.4. </a><a href="#name-status-vector-chunk" class="section-name selfRef">Status Vector Chunk</a>
+          </h4>
+<p id="section-3.1.4-1">A status vector chunk starts with a 1 bit to identify it as a vector chunk, followed by a symbol size bit and then 7 or 14 symbols, depending on the size bit.<a href="#section-3.1.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.4-2">
+<pre>
+     0                   1
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |T|S|       symbol list         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre><a href="#section-3.1.4-2" class="pilcrow">¶</a>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-3.1.4-3">
+            <dt id="section-3.1.4-3.1">chunk type (T):</dt>
+            <dd style="margin-left: 6.0em" id="section-3.1.4-3.2">1 bit
+         A one identifies this as a status vector chunk.<a href="#section-3.1.4-3.2" class="pilcrow">¶</a>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.4-3.3">symbol size (S):</dt>
+            <dd style="margin-left: 6.0em" id="section-3.1.4-3.4">1 bit
+         A zero means this vector contains only "packet received" (0) and
+         "packet not received" (1) symbols. This means we can compress each
+         symbol to just one bit, 14 in total.
+         A one means this vector contains the normal 2-bit symbols, 7 in total.<a href="#section-3.1.4-3.4" class="pilcrow">¶</a>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.4-3.5">symbol list:</dt>
+            <dd style="margin-left: 6.0em" id="section-3.1.4-3.6">14 bits
+         A list of packet status symbols, 7 or 14 in total.<a href="#section-3.1.4-3.6" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+</dl>
+<p id="section-3.1.4-4" class="keepWithNext">Example 1:<a href="#section-3.1.4-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.4-5">
+<pre>
+     0                   1
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |1|0|0 1 1 1 1 1 0 0 0 1 1 1 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre><a href="#section-3.1.4-5" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1.4-6">This chunk contains, in order:<a href="#section-3.1.4-6" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-3.1.4-7.1">
+              <p id="section-3.1.4-7.1.1">1x "packet not received"<a href="#section-3.1.4-7.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-7.2">
+              <p id="section-3.1.4-7.2.1">5x "packet received"<a href="#section-3.1.4-7.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-7.3">
+              <p id="section-3.1.4-7.3.1">3x "packet not received"<a href="#section-3.1.4-7.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-7.4">
+              <p id="section-3.1.4-7.4.1">3x "packet received"<a href="#section-3.1.4-7.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-7.5">
+              <p id="section-3.1.4-7.5.1">2x "packet not received"<a href="#section-3.1.4-7.5.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-3.1.4-8" class="keepWithNext">Example 2:<a href="#section-3.1.4-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.4-9">
+<pre>
+     0                   1
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |1|1|0 0 1 1 0 1 0 1 0 1 0 0 0 0|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre><a href="#section-3.1.4-9" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1.4-10">This chunk contains, in order:<a href="#section-3.1.4-10" class="pilcrow">¶</a></p>
+<ul class="normal ulEmpty">
+<li class="normal ulEmpty" id="section-3.1.4-11.1">
+              <p id="section-3.1.4-11.1.1">1x "packet not received"<a href="#section-3.1.4-11.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-11.2">
+              <p id="section-3.1.4-11.2.1">1x "packet received, w/o timestamp"<a href="#section-3.1.4-11.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-11.3">
+              <p id="section-3.1.4-11.3.1">3x "packet received"<a href="#section-3.1.4-11.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal ulEmpty" id="section-3.1.4-11.4">
+              <p id="section-3.1.4-11.4.1">2x "packet not received"<a href="#section-3.1.4-11.4.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</section>
+<section id="section-3.1.5">
+          <h4 id="name-receive-delta">
+<a href="#section-3.1.5" class="section-number selfRef">3.1.5. </a><a href="#name-receive-delta" class="section-name selfRef">Receive Delta</a>
+          </h4>
+<p id="section-3.1.5-1">Deltas are represented as multiples of 250us:<a href="#section-3.1.5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1.5-2.1">
+              <p id="section-3.1.5-2.1.1">If the "Packet received, small delta" symbol has been appended to the
+     status list, an 8-bit unsigned receive delta will be appended to recv
+     delta list, representing a delta in the range [0, 63.75] ms.<a href="#section-3.1.5-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3.1.5-2.2">
+              <p id="section-3.1.5-2.2.1">If the "Packet received, large or negative delta" symbol has been
+     appended to the status list, a 16-bit signed receive delta will be
+     appended to recv delta list, representing a delta in the range
+     [-8192.0, 8191.75] ms.<a href="#section-3.1.5-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3.1.5-2.3">
+              <p id="section-3.1.5-2.3.1">If the delta exceeds even the larger limits, a new feedback message must
+     be used, where the 24-bit base receive delta can cover very large gaps.<a href="#section-3.1.5-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-3.1.5-3">Note that the first receive delta is relative to the reference time indicated by the base receive delta.<a href="#section-3.1.5-3" class="pilcrow">¶</a></p>
+<p id="section-3.1.5-4">TODO: Add examples.<a href="#section-3.1.5-4" class="pilcrow">¶</a></p>
+<p id="section-3.1.5-5">The smaller receive delta upper bound of 63.75 ms means that this is only viable at about 1000/25.5 ~= 16 packets per second and above. With a packet size of 1200 bytes/packet that amounts to a bitrate of about 150 kbit/s.<a href="#section-3.1.5-5" class="pilcrow">¶</a></p>
+<p id="section-3.1.5-6">The 0.25 ms resolution means that up to 4000 packets per second can be represented. With a 1200 bytes/packet payload, that amounts to 38.4 Mbit/s payload bandwidth.<a href="#section-3.1.5-6" class="pilcrow">¶</a></p>
+</section>
+</section>
+</section>
+<section id="section-4">
+      <h2 id="name-sdp-signaling">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-sdp-signaling" class="section-name selfRef">SDP Signaling</a>
+      </h2>
+<p id="section-4-1">A new feedback type, "transport-cc", is defined for use with the
+        "a=rtcp-fb:" Session Description Protocol (SDP) extension to indicate
+        the use of the Transport-wide RTCP Feedback Message defined in Section 3.
+        The ABNF definition <span>[<a href="#RFC5234" class="cite xref">RFC5234</a>]</span> of this SDP parameter is<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div class="lang-abnf sourcecode" id="section-4-2">
+<pre>
+rtcp-fb-val = &amp;lt;See Section 4.2 of [RFC 4585]&gt;
+rtcp-fb-val =/ "transport-cc"</pre><a href="#section-4-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4-3">There are no parameters. An example of the resulting SDP attribute is:<a href="#section-4-3" class="pilcrow">¶</a></p>
+<div class="lang-sdp sourcecode" id="section-6-4">
+<pre>
+a=rtcp-fb:100 transport-cc</pre><a href="#section-6-4" class="pilcrow">¶</a>
+</div>
+<p id="section-4-5">The offer/answer rules for these SDP feedback parameters are
+        specified in Section 4.2 of the RTP/AVPF profile <span>[<a href="#RFC4585" class="cite xref">RFC4585</a>]</span>.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">When the SDP BUNDLE extension <span>[<a href="#RFC8843" class="cite xref">RFC8843</a>]</span> is used
+        for multiplexing, the "a=rtcp-fb:" attribute has multiplexing category
+        IDENTICAL-PER-PT <span>[<a href="#RFC8859" class="cite xref">RFC8859</a>]</span>.<a href="#section-4-6" class="pilcrow">¶</a></p>
+</section>
+<section id="section-5">
+      <h2 id="name-overhead-discussion">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-overhead-discussion" class="section-name selfRef">Overhead discussion</a>
+      </h2>
+<p id="section-5-1">TODO: Examples of overhead in various scenarios.<a href="#section-5-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-6">
+      <h2 id="name-iana-considerations">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA considerations</a>
+      </h2>
+<p id="section-6-1">Upon publication of this document as an RFC (if it is decided to
+      publish it), IANA is requested to register the string "transport-cc" in its
+      registry of "rtcp-fb" values in the SDP attribute registry group.<a href="#section-6-1" class="pilcrow">¶</a></p>
+</section>
+<div id="Security">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-7-1">If the RTCP packet is not protected, it is possible to inject fake
+      RTCP packets that can increase or decrease bandwidth. This is not
+      different from security considerations for any other RTCP message.<a href="#section-7-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="Acknowledgements">
+<section id="section-8">
+      <h2 id="name-acknowledgements">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="section-8-1"></p>
+</section>
+</div>
+<section id="section-9">
+      <h2 id="name-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<section id="section-9.1">
+        <h3 id="name-normative-references">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC3550">[RFC3550]</dt>
+        <dd>
+<span class="refAuthor">Schulzrinne, H.</span>, <span class="refAuthor">Casner, S.</span>, <span class="refAuthor">Frederick, R.</span>, and <span class="refAuthor">V. Jacobson</span>, <span class="refTitle">"RTP: A Transport Protocol for Real-Time Applications"</span>, <span class="seriesInfo">STD 64</span>, <span class="seriesInfo">RFC 3550</span>, <span class="seriesInfo">DOI 10.17487/RFC3550</span>, <time datetime="2003-07" class="refDate">July 2003</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3550">https://www.rfc-editor.org/info/rfc3550</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4585">[RFC4585]</dt>
+        <dd>
+<span class="refAuthor">Ott, J.</span>, <span class="refAuthor">Wenger, S.</span>, <span class="refAuthor">Sato, N.</span>, <span class="refAuthor">Burmeister, C.</span>, and <span class="refAuthor">J. Rey</span>, <span class="refTitle">"Extended RTP Profile for Real-time Transport Control Protocol (RTCP)-Based Feedback (RTP/AVPF)"</span>, <span class="seriesInfo">RFC 4585</span>, <span class="seriesInfo">DOI 10.17487/RFC4585</span>, <time datetime="2006-07" class="refDate">July 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4585">https://www.rfc-editor.org/info/rfc4585</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5234">[RFC5234]</dt>
+        <dd>
+<span class="refAuthor">Crocker, D., Ed.</span> and <span class="refAuthor">P. Overell</span>, <span class="refTitle">"Augmented BNF for Syntax Specifications: ABNF"</span>, <span class="seriesInfo">STD 68</span>, <span class="seriesInfo">RFC 5234</span>, <span class="seriesInfo">DOI 10.17487/RFC5234</span>, <time datetime="2008-01" class="refDate">January 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5234">https://www.rfc-editor.org/info/rfc5234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5285">[RFC5285]</dt>
+        <dd>
+<span class="refAuthor">Singer, D.</span> and <span class="refAuthor">H. Desineni</span>, <span class="refTitle">"A General Mechanism for RTP Header Extensions"</span>, <span class="seriesInfo">RFC 5285</span>, <span class="seriesInfo">DOI 10.17487/RFC5285</span>, <time datetime="2008-07" class="refDate">July 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5285">https://www.rfc-editor.org/info/rfc5285</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8843">[RFC8843]</dt>
+        <dd>
+<span class="refAuthor">Holmberg, C.</span>, <span class="refAuthor">Alvestrand, H.</span>, and <span class="refAuthor">C. Jennings</span>, <span class="refTitle">"Negotiating Media Multiplexing Using the Session Description Protocol (SDP)"</span>, <span class="seriesInfo">RFC 8843</span>, <span class="seriesInfo">DOI 10.17487/RFC8843</span>, <time datetime="2021-01" class="refDate">January 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8843">https://www.rfc-editor.org/info/rfc8843</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8859">[RFC8859]</dt>
+      <dd>
+<span class="refAuthor">Nandakumar, S.</span>, <span class="refTitle">"A Framework for Session Description Protocol (SDP) Attributes When Multiplexing"</span>, <span class="seriesInfo">RFC 8859</span>, <span class="seriesInfo">DOI 10.17487/RFC8859</span>, <time datetime="2021-01" class="refDate">January 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8859">https://www.rfc-editor.org/info/rfc8859</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="section-9.2">
+        <h3 id="name-informative-references">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="I-D.ietf-rmcat-gcc">[I-D.ietf-rmcat-gcc]</dt>
+        <dd>
+<span class="refAuthor">Holmer, S.</span>, <span class="refAuthor">Lundin, H.</span>, <span class="refAuthor">Carlucci, G.</span>, <span class="refAuthor">De Cicco, L.</span>, and <span class="refAuthor">S. Mascolo</span>, <span class="refTitle">"A Google Congestion Control Algorithm for Real-Time Communication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-rmcat-gcc-02</span>, <time datetime="2016-07-08" class="refDate">8 July 2016</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-rmcat-gcc-02">https://datatracker.ietf.org/doc/html/draft-ietf-rmcat-gcc-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-rmcat-nada">[I-D.ietf-rmcat-nada]</dt>
+        <dd>
+<span class="refAuthor">Zhu, X.</span>, <span class="refAuthor">*, R. P.</span>, <span class="refAuthor">Ramalho, M. A.</span>, and <span class="refAuthor">S. M. de la Cruz</span>, <span class="refTitle">"Network-Assisted Dynamic Adaptation (NADA): A Unified Congestion Control Scheme for Real-Time Media"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-rmcat-nada-13</span>, <time datetime="2019-09-06" class="refDate">6 September 2019</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-rmcat-nada-13">https://datatracker.ietf.org/doc/html/draft-ietf-rmcat-nada-13</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-rmcat-scream-cc">[I-D.ietf-rmcat-scream-cc]</dt>
+      <dd>
+<span class="refAuthor">Johansson, I.</span> and <span class="refAuthor">Z. Sarker</span>, <span class="refTitle">"Self-Clocked Rate Adaptation for Multimedia"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-rmcat-scream-cc-13</span>, <time datetime="2017-10-26" class="refDate">26 October 2017</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-rmcat-scream-cc-13">https://datatracker.ietf.org/doc/html/draft-ietf-rmcat-scream-cc-13</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</section>
+<section id="appendix-A">
+      <h2 id="name-change-log">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-change-log" class="section-name selfRef">Change log</a>
+      </h2>
+<p id="appendix-A-1"></p>
+<section id="appendix-A.1">
+        <h3 id="name-first-version">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-first-version" class="section-name selfRef">First version</a>
+      </h3>
+</section>
+</section>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Stefan Holmer</span></div>
+<div dir="auto" class="left"><span class="org">Google</span></div>
+<div dir="auto" class="left"><span class="street-address">Kungsbron 2</span></div>
+<div dir="auto" class="left">SE-<span class="postal-code">11122</span> <span class="locality">Stockholm</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Sweden</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:holmer@google.com" class="email">holmer@google.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Magnus Flodman</span></div>
+<div dir="auto" class="left"><span class="org">Google</span></div>
+<div dir="auto" class="left"><span class="street-address">Kungsbron 2</span></div>
+<div dir="auto" class="left">SE-<span class="postal-code">11122</span> <span class="locality">Stockholm</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Sweden</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:mflodman@google.com" class="email">mflodman@google.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Erik Sprang</span></div>
+<div dir="auto" class="left"><span class="org">Google</span></div>
+<div dir="auto" class="left"><span class="street-address">Kungsbron 2</span></div>
+<div dir="auto" class="left">SE-<span class="postal-code">11122</span> <span class="locality">Stockholm</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">Sweden</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:sprang@google.com" class="email">sprang@google.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
