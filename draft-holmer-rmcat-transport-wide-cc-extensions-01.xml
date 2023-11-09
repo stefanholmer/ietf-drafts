@@ -88,7 +88,7 @@
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
       document are to be interpreted as described in <xref
-      target="RFC2119">RFC 2119</xref>.</t>
+      target="RFC2119"></xref>.</t>
     </note>
   </front>
   <middle>
@@ -194,7 +194,7 @@
       </list></t>
 
       <t>From a congestion control perspective, lost feedback messages are handled by
-      ignoring packets which would have been reported as lost or received in the lost 
+      ignoring packets which would have been reported as lost or received in the lost
       feedback messages. This behavior is similar to how a lost RTCP receiver report
       is handled.</t>
 
@@ -203,9 +203,9 @@
       them less frequently, e.g., for instance once per RTT, to reduce the overhead.</t>
 
       <section title="Message format">
-        <t>The message is an RTCP message with payload type 206. RFC 3550
-        <xref target="RFC3550"></xref> defines the range, RFC 4585
-        <xref target="RFC3550"></xref> defines the specific PT value 206 and
+        <t>The message is an RTCP message with payload type 206.
+        <xref target="RFC3550"></xref> defines the range,
+        <xref target="RFC4585"></xref> defines the specific PT value 206 and
         the FMT value 15.</t>
 
         <figure>
@@ -450,13 +450,32 @@ the run length of that symbol.</t>
       </section>
     </section>
 
+    <section title="SDP Signaling">
+      <t>A new feedback type, "transport-cc", is defined for use with the
+        "a=rtcp-fb:" Session Description Protocol (SDP) extension to indicate
+        the use of the Transport-wide RTCP Feedback Message defined in Section 3.
+        The ABNF definition <xref target="RFC5234"></xref> of this SDP parameter is
+      </t>
+      <sourcecode type="abnf" markers="false"><![CDATA[
+rtcp-fb-val = &lt;See Section 4.2 of [RFC 4585]>
+rtcp-fb-val =/ "transport-cc"]]></sourcecode>
+      <t>There are no parameters. An example of the resulting SDP attribute is:</t>
+      <sourcecode name="" type="sdp" markers="false" pn="section-6-4"><![CDATA[
+a=rtcp-fb:100 transport-cc]]></sourcecode>
+      <t>The offer/answer rules for these SDP feedback parameters are
+        specified in Section 4.2 of the RTP/AVPF profile <xref target="RFC4585"></xref>.</t>
+      <t>When the SDP BUNDLE extension <xref target="RFC8843"></xref> is used
+        for multiplexing, the "a=rtcp-fb:" attribute has multiplexing category
+        IDENTICAL-PER-PT <xref target="RFC8859"></xref>.</t>
+    </section>
+
     <section title="Overhead discussion">
       <t>TODO: Examples of overhead in various scenarios.</t>
     </section>
 
     <section title="IANA considerations">
       <t>Upon publication of this document as an RFC (if it is decided to
-      publish it), IANA is requested to register the string "goog-remb" in its
+      publish it), IANA is requested to register the string "transport-cc" in its
       registry of "rtcp-fb" values in the SDP attribute registry group.</t>
     </section>
 
@@ -474,10 +493,12 @@ the run length of that symbol.</t>
   <back>
     <references title="Normative References">
       <?rfc include="reference.RFC.2119"?>
-
       <?rfc include="reference.RFC.3550"?>
-
+      <?rfc include="reference.RFC.4585"?>
+      <?rfc include="reference.RFC.5234"?>
       <?rfc include="reference.RFC.5285"?>
+      <?rfc include="reference.RFC.8843"?>
+      <?rfc include="reference.RFC.8859"?>
     </references>
 
     <references title="Informative References">
